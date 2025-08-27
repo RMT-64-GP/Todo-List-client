@@ -54,7 +54,7 @@ io.on("connection", async (socket) => {
   // Handle task deletion
   socket.on("task:deleted", (data) => {
     console.log("Task deleted:", data)
-    // Broadcast task deletion to other users
+    // Broadcast task deletion to other Users
     socket.broadcast.emit("task:removed", data)
   })
 
