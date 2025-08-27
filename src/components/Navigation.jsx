@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom"
 
 export default function Navigation() {
@@ -20,6 +21,14 @@ export default function Navigation() {
               )}`}
             >
               Tasks
+            </Link>
+            <Link
+              to="/login"
+              className={`px-4 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-white/50 transition-all duration-200 ${isActive(
+                "/login"
+              )}`}
+            >
+              Login
             </Link>
           </div>
         </div>

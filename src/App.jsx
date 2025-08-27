@@ -7,6 +7,13 @@ import {
 import Navigation from "./components/Navigation"
 import TasksPage from "./pages/Tasks"
 import LoginPage from "./pages/LoginPage"
+
+// Komponen wrapper untuk proteksi route
+function PrivateRoute({ children }) {
+  const isLoggedIn = localStorage.getItem("isLoggedIn")
+  return isLoggedIn ? children : <Navigate to="/login" replace />
+}
+
 export default function App() {
   const isLoggedIn = !!localStorage.getItem("access_token")
 
@@ -16,25 +23,21 @@ export default function App() {
         <Navigation />
         <main>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
+            {/* Redirect default ke /tasks */}
+            <Route path="/" element={<Navigate to="/tasks" replace />} />
 
+            {/* Protected route */}
             <Route
               path="/tasks"
               element={
-                isLoggedIn ? <TasksPage /> : <Navigate to="/login" replace />
+                <PrivateRoute>
+                  <TasksPage />
+                </PrivateRoute>
               }
             />
 
-            <Route
-              path="/"
-              element={
-                isLoggedIn ? (
-                  <Navigate to="/tasks" replace />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              }
-            />
+            {/* Public route */}
+            <Route path="/login" element={<LoginPage />} />
           </Routes>
         </main>
       </div>
