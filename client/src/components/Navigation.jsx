@@ -1,17 +1,19 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext"; 
 import GoogleSignInButton from "./GoogleSignInButton";
 
 export default function Navigation() {
   const { user, isAuthenticated, signOut, isLoading } = useAuth();
+  const { darkMode, toggleTheme } = useTheme(); 
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
+    <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <Link
             to="/"
-            className="text-xl font-bold text-slate-800 hover:text-slate-600 transition-colors"
+            className="text-xl font-bold text-slate-800 dark:text-slate-100 hover:text-slate-600 dark:hover:text-gray-300 transition-colors"
           >
             ✨ Tasks
           </Link>
@@ -23,7 +25,7 @@ export default function Navigation() {
               <>
                 <Link
                   to="/collaborate"
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-white/50 transition-all duration-200"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all duration-200"
                 >
                   Collaborate
                 </Link>
@@ -43,13 +45,13 @@ export default function Navigation() {
                         {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                       </div>
                     )}
-                    <span className="text-sm font-medium text-slate-700">
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                       {user?.name}
                     </span>
                   </div>
                   <button
                     onClick={signOut}
-                    className="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition-colors"
+                    className="px-3 py-1 text-xs bg-slate-100 dark:bg-gray-700 hover:bg-slate-200 dark:hover:bg-gray-600 text-slate-700 dark:text-slate-200 rounded transition-colors"
                   >
                     Sign Out
                   </button>
@@ -58,6 +60,13 @@ export default function Navigation() {
             ) : (
               <GoogleSignInButton />
             )}
+
+            <button
+              onClick={toggleTheme}
+              className="px-3 py-2 rounded-lg bg-slate-200 dark:bg-gray-700 text-slate-800 dark:text-slate-200 text-sm transition-colors"
+            >
+              {darkMode ? "☀️ Light" : "🌙 Dark"}
+            </button>
           </div>
         </div>
       </div>
