@@ -6,6 +6,13 @@ import {
 } from "react-router-dom"
 import Navigation from "./components/Navigation"
 import TasksPage from "./pages/Tasks"
+import LoginPage from "./pages/LoginPage"
+
+// Komponen wrapper untuk proteksi route
+function PrivateRoute({ children }) {
+  const isLoggedIn = localStorage.getItem("isLoggedIn")
+  return isLoggedIn ? children : <Navigate to="/login" replace />
+}
 
 export default function App() {
   return (
@@ -14,8 +21,21 @@ export default function App() {
         <Navigation />
         <main>
           <Routes>
+            {/* Redirect default ke /tasks */}
             <Route path="/" element={<Navigate to="/tasks" replace />} />
-            <Route path="/tasks" element={<TasksPage />} />
+
+            {/* Protected route */}
+            <Route
+              path="/tasks"
+              element={
+                <PrivateRoute>
+                  <TasksPage />
+                </PrivateRoute>
+              }
+            />
+
+            {/* Public route */}
+            <Route path="/login" element={<LoginPage />} />
           </Routes>
         </main>
       </div>
