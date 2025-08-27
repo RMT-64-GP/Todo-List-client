@@ -3,39 +3,63 @@ import { socket } from "../lib/socket"
 import TaskInput from "../components/TaskInput"
 import TaskList from "../components/TaskList"
 import AISummary from "../components/AISummary"
+import { useNavigate } from "react-router-dom"
 
 export default function TasksPage() {
   const [onlineUsers, setOnlineUsers] = useState([])
+  const [user, setUser] = useState(localStorage.getItem("username") || null)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    // Listen for online users updates
     socket.on("users:online", (users) => {
-      console.log("Online users:", users)
       setOnlineUsers(users)
     })
 
-    // Set default username for this session
-    if (!localStorage.getItem("username")) {
-      const defaultUsername = `User_${Math.floor(Math.random() * 1000)}`
-      localStorage.setItem("username", defaultUsername)
-
-      // Update socket auth
-      socket.auth = { username: defaultUsername }
-      socket.disconnect().connect()
-    } else {
-      // Update socket auth with existing username
-      socket.auth = { username: localStorage.getItem("username") }
+    if (user) {
+      socket.auth = { username: user }
       socket.disconnect().connect()
     }
 
     return () => {
       socket.off("users:online")
     }
-  }, [])
+  }, [user])
+
+  function handleLogout() {
+    localStorage.removeItem("access_token")
+    localStorage.removeItem("username")
+    setUser(null)
+    socket.disconnect()
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header with Login/Logout */}
+        <div className="flex justify-end mb-6">
+          {!user ? (
+            <button
+              onClick={() => navigate("/login")}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600"
+            >
+              Login
+            </button>
+          ) : (
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-slate-600">
+                Hello, {user}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
         <div className="grid grid-cols-1 xl:grid-cols-6 gap-8">
           {/* Main Content Area */}
           <div className="xl:col-span-4 space-y-8">
