@@ -5,21 +5,23 @@ export default function TaskList() {
 
   if (tasks.length === 0) {
     return (
-      <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20 p-12 text-center">
-        <div className="text-slate-300 text-6xl mb-4">✨</div>
-        <h3 className="text-xl font-semibold text-slate-600 mb-2">
+      <div className="bg-white/70 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20 dark:border-slate-700 p-12 text-center">
+        <div className="text-slate-300 dark:text-slate-400 text-6xl mb-4">✨</div>
+        <h3 className="text-xl font-semibold text-slate-600 dark:text-slate-200 mb-2">
           No tasks yet
         </h3>
-        <p className="text-slate-500">Start by adding your first task above!</p>
+        <p className="text-slate-500 dark:text-slate-300">
+          Start by adding your first task above!
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20 p-8">
+    <div className="bg-white/70 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl shadow-sm border border-white/20 dark:border-slate-700 p-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-slate-800">Your Tasks</h2>
-        <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm font-medium">
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">Your Tasks</h2>
+        <span className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-sm font-medium">
           {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
         </span>
       </div>
@@ -30,8 +32,8 @@ export default function TaskList() {
             key={task.id}
             className={`group p-4 rounded-xl transition-all duration-200 hover:shadow-md ${
               task.done
-                ? "bg-green-50/50 border border-green-200/50"
-                : "bg-white/50 border border-slate-200/50 hover:border-slate-300/50"
+                ? "bg-green-50/50 dark:bg-green-900/40 border border-green-200/50 dark:border-green-700/50"
+                : "bg-white/50 dark:bg-slate-700/40 border border-slate-200/50 dark:border-slate-600/50 hover:border-slate-300/50 dark:hover:border-slate-500/50"
             }`}
           >
             <div className="flex items-start space-x-4">
@@ -40,7 +42,7 @@ export default function TaskList() {
                   type="checkbox"
                   checked={task.done}
                   onChange={() => toggleTask(task.id)}
-                  className="w-5 h-5 text-green-600 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200"
+                  className="w-5 h-5 text-green-600 dark:text-green-400 border-2 border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400 focus:ring-offset-2 transition-all duration-200"
                 />
               </div>
 
@@ -50,23 +52,23 @@ export default function TaskList() {
                     <span
                       className={`block text-lg font-medium transition-all duration-200 ${
                         task.done
-                          ? "line-through text-slate-400"
-                          : "text-slate-800"
+                          ? "line-through text-slate-400 dark:text-slate-500"
+                          : "text-slate-800 dark:text-slate-200"
                       }`}
                     >
                       {task.text}
                     </span>
 
-                    <div className="flex items-center space-x-4 mt-2 text-sm text-slate-500">
+                    <div className="flex items-center space-x-4 mt-2 text-sm text-slate-500 dark:text-slate-300">
                       {task.dueDate && (
                         <span className="flex items-center space-x-1">
-                          <span className="text-slate-400">📅</span>
+                          <span className="text-slate-400 dark:text-slate-500">📅</span>
                           <span>{task.dueDate}</span>
                         </span>
                       )}
                       {task.username && (
                         <span className="flex items-center space-x-1">
-                          <span className="text-slate-400">👤</span>
+                          <span className="text-slate-400 dark:text-slate-500">👤</span>
                           <span>{task.username}</span>
                         </span>
                       )}
@@ -75,7 +77,7 @@ export default function TaskList() {
 
                   <button
                     onClick={() => deleteTask(task.id)}
-                    className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all duration-200 ml-2"
+                    className="opacity-0 group-hover:opacity-100 text-slate-400 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 p-2 rounded-lg transition-all duration-200 ml-2"
                     title="Delete task"
                   >
                     <svg
