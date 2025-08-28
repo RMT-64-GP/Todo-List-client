@@ -1,11 +1,15 @@
+
 const express = require("express")
+const cors = require("cors")
 
 // Socket.io require
 const { createServer } = require("http")
 const { Server } = require("socket.io")
 
 const port = 3000
+
 const app = express()
+app.use(cors())
 
 // Instance for socket.io
 const httpServer = createServer(app)
