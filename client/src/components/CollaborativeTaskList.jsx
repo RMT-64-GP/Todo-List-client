@@ -1,25 +1,31 @@
 import { useState } from "react"
 import { useCollaborativeTasks } from "../context/CollaborativeTaskContext"
+import { useAuth } from "../context/AuthContext"
 import RealTimeIndicator from "./RealTimeIndicator"
 
 export default function CollaborativeTaskList() {
+  const { user } = useAuth()
   const {
     collaborativeTasks,
     addCollaborativeTask,
     toggleCollaborativeTask,
     deleteCollaborativeTask,
+    assignTask,
     roomMembers,
   } = useCollaborativeTasks()
 
   const [newTask, setNewTask] = useState("")
   const [dueDate, setDueDate] = useState("")
+  const [assignedTo, setAssignedTo] = useState("")
+  const [filter, setFilter] = useState("all") // all, assigned-to-me, unassigned
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (newTask.trim()) {
-      addCollaborativeTask(newTask.trim(), dueDate)
+      addCollaborativeTask(newTask.trim(), dueDate, assignedTo || null)
       setNewTask("")
       setDueDate("")
+      setAssignedTo("")
     }
   }
 
@@ -45,6 +51,19 @@ export default function CollaborativeTaskList() {
       return "text-orange-500 font-medium"
     return "text-slate-500 dark:text-slate-400"
   }
+
+  const getFilteredTasks = () => {
+    switch (filter) {
+      case "assigned-to-me":
+        return collaborativeTasks.filter(task => task.assignedTo === user?.name)
+      case "unassigned":
+        return collaborativeTasks.filter(task => !task.assignedTo)
+      default:
+        return collaborativeTasks
+    }
+  }
+
+  const filteredTasks = getFilteredTasks()
 
   return (
     <div className="space-y-6">
@@ -94,7 +113,7 @@ export default function CollaborativeTaskList() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               Due Date (Optional)
@@ -105,6 +124,24 @@ export default function CollaborativeTaskList() {
               onChange={(e) => setDueDate(e.target.value)}
               className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-slate-800 dark:text-slate-100"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Assign To (Optional)
+            </label>
+            <select
+              value={assignedTo}
+              onChange={(e) => setAssignedTo(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-slate-800 dark:text-slate-100"
+            >
+              <option value="">Unassigned</option>
+              {roomMembers.map((member, index) => (
+                <option key={index} value={member.name}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="flex items-end">
@@ -120,18 +157,42 @@ export default function CollaborativeTaskList() {
 
       {/* Task List */}
       <div className="space-y-3">
-        <h5 className="font-medium text-slate-800 dark:text-slate-100">
-          Collaborative Tasks ({collaborativeTasks.length})
-        </h5>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h5 className="font-medium text-slate-800 dark:text-slate-100">
+            Collaborative Tasks ({filteredTasks.length})
+          </h5>
+          
+          {/* Task Filter */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-slate-600 dark:text-slate-400">
+              Filter:
+            </label>
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="px-3 py-1 text-sm border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-slate-800 dark:text-slate-100"
+            >
+              <option value="all">All Tasks</option>
+              <option value="assigned-to-me">Assigned to Me</option>
+              <option value="unassigned">Unassigned</option>
+            </select>
+          </div>
+        </div>
 
-        {collaborativeTasks.length === 0 ? (
+        {filteredTasks.length === 0 ? (
           <div className="text-center py-8 text-slate-500 dark:text-slate-400">
             <div className="text-3xl mb-2">📝</div>
-            <p>No tasks yet. Add one above to get started!</p>
+            <p>
+              {filter === "assigned-to-me" 
+                ? "No tasks assigned to you yet." 
+                : filter === "unassigned"
+                ? "No unassigned tasks."
+                : "No tasks yet. Add one above to get started!"}
+            </p>
           </div>
         ) : (
           <div className="space-y-2">
-            {collaborativeTasks.map((task) => (
+            {filteredTasks.map((task) => (
               <div
                 key={task.id}
                 className={`p-4 border rounded-lg transition-all ${
@@ -165,6 +226,12 @@ export default function CollaborativeTaskList() {
                           By: {task.username}
                         </span>
 
+                        {task.assignedTo && (
+                          <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs font-medium">
+                            Assigned to: {task.assignedTo}
+                          </span>
+                        )}
+
                         {task.dueDate && (
                           <span className={getDueDateClass(task.dueDate)}>
                             Due: {formatDate(task.dueDate)} at{" "}
@@ -175,6 +242,25 @@ export default function CollaborativeTaskList() {
                         <span className="text-slate-400 dark:text-slate-500">
                           Created: {formatTime(task.createdAt)}
                         </span>
+                      </div>
+
+                      {/* Assignment Controls */}
+                      <div className="mt-3 flex items-center gap-2">
+                        <label className="text-xs text-slate-600 dark:text-slate-400">
+                          Assign to:
+                        </label>
+                        <select
+                          value={task.assignedTo || ""}
+                          onChange={(e) => assignTask(task.id, e.target.value || null)}
+                          className="text-xs px-2 py-1 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-gray-800 text-slate-800 dark:text-slate-100"
+                        >
+                          <option value="">Unassigned</option>
+                          {roomMembers.map((member, index) => (
+                            <option key={index} value={member.name}>
+                              {member.name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                   </div>

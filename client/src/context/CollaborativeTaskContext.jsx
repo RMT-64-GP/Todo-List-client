@@ -83,7 +83,7 @@ export function CollaborativeTaskProvider({ children }) {
     }
   };
 
-  const addCollaborativeTask = (text, dueDate) => {
+  const addCollaborativeTask = (text, dueDate, assignedTo = null) => {
     if (!currentRoom) return;
 
     const newTask = {
@@ -92,6 +92,7 @@ export function CollaborativeTaskProvider({ children }) {
       dueDate,
       done: false,
       username: user.name,
+      assignedTo: assignedTo,
       roomCode: currentRoom.code,
       createdAt: new Date().toISOString(),
     };
@@ -130,6 +131,23 @@ export function CollaborativeTaskProvider({ children }) {
     socket.emit("task:deleted", { id: taskId, roomCode: currentRoom.code });
   };
 
+  const assignTask = (taskId, assignedTo) => {
+    if (!currentRoom) return;
+
+    const task = collaborativeTasks.find(t => t.id === taskId);
+    if (task) {
+      const updatedTask = { ...task, assignedTo };
+      
+      // Optimistic update
+      setCollaborativeTasks(prev => 
+        prev.map(t => t.id === taskId ? updatedTask : t)
+      );
+
+      // Emit to server
+      socket.emit("task:update", updatedTask);
+    }
+  };
+
   return (
     <CollaborativeTaskContext.Provider
       value={{
@@ -142,6 +160,7 @@ export function CollaborativeTaskProvider({ children }) {
         addCollaborativeTask,
         toggleCollaborativeTask,
         deleteCollaborativeTask,
+        assignTask,
       }}
     >
       {children}
